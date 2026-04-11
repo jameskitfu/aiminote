@@ -35,7 +35,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
 
         {/* Summary */}
         <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4 line-clamp-3">
-          {article.summary}
+          {article.summary || article.excerpt || '暂无摘要'}
         </p>
 
         {/* Tags */}

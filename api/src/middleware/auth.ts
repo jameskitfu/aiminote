@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { verifyToken, extractTokenFromHeader } from '../utils/auth';
 import { AuthRequest } from '../types';
 
@@ -18,7 +18,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     const decoded = verifyToken(token);
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch {
     res.status(403).json({
       success: false,
       message: 'Invalid or expired token',
@@ -37,7 +37,7 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
     }
     
     next();
-  } catch (error) {
+  } catch {
     // Continue without authentication
     next();
   }

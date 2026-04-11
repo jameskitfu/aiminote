@@ -39,7 +39,7 @@ export default function Login() {
         setError(response.message || '登录失败');
       }
     } catch (err) {
-      setError('登录失败，请检查网络连接');
+      setError(err instanceof Error ? err.message : '登录失败，请检查网络连接');
     } finally {
       setLoading(false);
     }

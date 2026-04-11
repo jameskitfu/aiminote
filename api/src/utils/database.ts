@@ -19,5 +19,5 @@ export const sequelize = new Sequelize({
   password: DB_PASSWORD,
   dialect: 'sqlite',
   storage: ':memory:',
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  logging: process.env['NODE_ENV'] === 'development' ? console.log : false,
 });

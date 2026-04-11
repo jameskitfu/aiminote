@@ -1,23 +1,75 @@
 // Mock database for development without requiring actual database setup
-const generateId = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
+const generateId = () =>
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+    const random = (Math.random() * 16) | 0;
+    const value = char === 'x' ? random : (random & 0x3) | 0x8;
+    return value.toString(16);
   });
-};
 
-// Mock data storage
-let users: any[] = [];
-let articles: any[] = [];
-let comments: any[] = [];
+export interface MockUser {
+  id: string;
+  username: string;
+  email: string;
+  password_hash: string;
+  avatar?: string;
+  bio?: string;
+  role?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-// Utility functions
+export interface MockArticle {
+  id: string;
+  title: string;
+  content: string;
+  summary: string;
+  excerpt?: string;
+  coverImage?: string;
+  category: string;
+  tags: string[];
+  authorId: string;
+  status: string;
+  viewCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MockComment {
+  id: string;
+  content: string;
+  articleId: string;
+  authorId?: string;
+  authorName: string;
+  authorEmail?: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface FindArticlesOptions {
+  category?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+interface PaginatedArticles {
+  articles: MockArticle[];
+  total: number;
+  page: number;
+  pages: number;
+}
+
+let users: MockUser[] = [];
+let articles: MockArticle[] = [];
+let comments: MockComment[] = [];
+
 export { generateId };
 
-// User operations
-export const createUser = (userData: any) => {
-  const user = {
+export const createUser = (
+  userData: Omit<MockUser, 'id' | 'createdAt' | 'updatedAt'>
+): MockUser => {
+  const user: MockUser = {
     id: generateId(),
     ...userData,
     createdAt: new Date(),
@@ -27,17 +79,16 @@ export const createUser = (userData: any) => {
   return user;
 };
 
-export const findUserByEmail = (email: string) => {
-  return users.find(user => user.email === email);
-};
+export const findUserByEmail = (email: string): MockUser | undefined =>
+  users.find((user) => user.email === email);
 
-export const findUserById = (id: string) => {
-  return users.find(user => user.id === id);
-};
+export const findUserById = (id: string): MockUser | undefined =>
+  users.find((user) => user.id === id);
 
-// Article operations
-export const createArticle = (articleData: any) => {
-  const article = {
+export const createArticle = (
+  articleData: Omit<MockArticle, 'id' | 'createdAt' | 'updatedAt'>
+): MockArticle => {
+  const article: MockArticle = {
     id: generateId(),
     ...articleData,
     createdAt: new Date(),
@@ -47,70 +98,85 @@ export const createArticle = (articleData: any) => {
   return article;
 };
 
-export const findAllArticles = (options: any = {}) => {
+export const findAllArticles = (options: FindArticlesOptions = {}): PaginatedArticles => {
   let filteredArticles = [...articles];
-  
-  // Filter by category
+
   if (options.category && options.category !== 'all') {
-    filteredArticles = filteredArticles.filter(article => 
-      article.category === options.category
+    filteredArticles = filteredArticles.filter(
+      (article) => article.category === options.category
     );
   }
-  
-  // Search by title or content
+
   if (options.search) {
     const searchTerm = options.search.toLowerCase();
-    filteredArticles = filteredArticles.filter(article => 
-      article.title.toLowerCase().includes(searchTerm) ||
-      article.content.toLowerCase().includes(searchTerm)
-    );
+    filteredArticles = filteredArticles.filter((article) => {
+      const summary = article.summary || article.excerpt || '';
+      return (
+        article.title.toLowerCase().includes(searchTerm) ||
+        article.content.toLowerCase().includes(searchTerm) ||
+        summary.toLowerCase().includes(searchTerm)
+      );
+    });
   }
-  
-  // Sort by createdAt (newest first)
-  filteredArticles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  
-  // Pagination
-  const page = options.page || 1;
-  const limit = options.limit || 10;
+
+  filteredArticles.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const page = options.page ?? 1;
+  const limit = options.limit ?? 10;
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
-  
+
   return {
     articles: filteredArticles.slice(startIndex, endIndex),
     total: filteredArticles.length,
     page,
-    pages: Math.ceil(filteredArticles.length / limit)
+    pages: Math.ceil(filteredArticles.length / limit),
   };
 };
 
-export const findArticleById = (id: string) => {
-  return articles.find(article => article.id === id);
-};
+export const findArticleById = (id: string): MockArticle | undefined =>
+  articles.find((article) => article.id === id);
 
-export const updateArticle = (id: string, updateData: any) => {
-  const index = articles.findIndex(article => article.id === id);
-  if (index === -1) return null;
-  
-  articles[index] = {
-    ...articles[index],
+export const updateArticle = (
+  id: string,
+  updateData: Partial<Omit<MockArticle, 'id' | 'createdAt' | 'updatedAt'>>
+): MockArticle | null => {
+  const index = articles.findIndex((article) => article.id === id);
+  if (index === -1) {
+    return null;
+  }
+
+  const existingArticle = articles[index];
+  if (!existingArticle) {
+    return null;
+  }
+
+  const updatedArticle: MockArticle = {
+    ...existingArticle,
     ...updateData,
     updatedAt: new Date(),
   };
-  
-  return articles[index];
+
+  articles[index] = updatedArticle;
+  return updatedArticle;
 };
 
-export const deleteArticle = (id: string) => {
-  const index = articles.findIndex(article => article.id === id);
-  if (index === -1) return false;
-  
+export const deleteArticle = (id: string): boolean => {
+  const index = articles.findIndex((article) => article.id === id);
+  if (index === -1) {
+    return false;
+  }
+
   articles.splice(index, 1);
   return true;
 };
 
-// Comment operations
-export const createComment = (commentData: any) => {
-  const comment = {
+export const createComment = (
+  commentData: Omit<MockComment, 'id' | 'createdAt' | 'updatedAt'>
+): MockComment => {
+  const comment: MockComment = {
     id: generateId(),
     ...commentData,
     createdAt: new Date(),
@@ -120,40 +186,47 @@ export const createComment = (commentData: any) => {
   return comment;
 };
 
-export const findCommentsByArticleId = (articleId: string) => {
-  return comments.filter(comment => comment.articleId === articleId)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-};
+export const findCommentsByArticleId = (articleId: string): MockComment[] =>
+  comments
+    .filter((comment) => comment.articleId === articleId)
+    .sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
-export const deleteComment = (id: string) => {
-  const index = comments.findIndex(comment => comment.id === id);
-  if (index === -1) return false;
-  
+export const deleteComment = (id: string): boolean => {
+  const index = comments.findIndex((comment) => comment.id === id);
+  if (index === -1) {
+    return false;
+  }
+
   comments.splice(index, 1);
   return true;
 };
 
-// Initialize with sample data
 export const initializeMockData = () => {
-  // Sample users
-  const sampleUsers = [
+  const sampleUsers: MockUser[] = [
     {
       id: generateId(),
       username: 'aimi',
       email: 'aimi@example.com',
-      password_hash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+      password_hash:
+        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=aimi',
       bio: '前端开发工程师，热爱技术分享',
       role: 'admin',
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
-    }
+    },
   ];
-  
+
   users = [...sampleUsers];
-  
-  // Sample articles
-  const sampleArticles = [
+  const defaultAuthor = sampleUsers[0];
+
+  if (!defaultAuthor) {
+    throw new Error('Failed to initialize mock users');
+  }
+
+  const sampleArticles: MockArticle[] = [
     {
       id: generateId(),
       title: 'React Hooks 最佳实践指南',
@@ -185,11 +258,13 @@ useEffect(() => {
 1. 总是使用函数式更新来处理依赖于之前状态的状态更新
 2. 使用 useCallback 和 useMemo 来优化性能
 3. 正确设置依赖数组，避免无限循环`,
+      summary: '深入探讨 React Hooks 的使用方法和最佳实践，帮助你写出更优雅的 React 代码。',
       excerpt: '深入探讨 React Hooks 的使用方法和最佳实践，帮助你写出更优雅的 React 代码。',
-      coverImage: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=React+Hooks+programming+concept+with+modern+code+editor+interface+and+colorful+code+syntax+highlighting&image_size=landscape_16_9',
+      coverImage:
+        'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=React+Hooks+programming+concept+with+modern+code+editor+interface+and+colorful+code+syntax+highlighting&image_size=landscape_16_9',
       category: 'React',
       tags: ['React', 'Hooks', 'JavaScript', 'Frontend'],
-      authorId: users[0].id,
+      authorId: defaultAuthor.id,
       status: 'published',
       viewCount: 156,
       createdAt: new Date('2024-01-15'),
@@ -222,11 +297,13 @@ type IsString<T> = T extends string ? true : false;
 - \`Required<T>\` - 将所有属性设为必需
 - \`Pick<T, K>\` - 从 T 中挑选属性 K
 - \`Omit<T, K>\` - 从 T 中省略属性 K`,
+      summary: '探索 TypeScript 的高级特性，包括泛型、条件类型和实用工具类型。',
       excerpt: '探索 TypeScript 的高级特性，包括泛型、条件类型和实用工具类型。',
-      coverImage: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=TypeScript+code+editor+with+type+annotations+and+modern+development+environment&image_size=landscape_16_9',
+      coverImage:
+        'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=TypeScript+code+editor+with+type+annotations+and+modern+development+environment&image_size=landscape_16_9',
       category: 'TypeScript',
       tags: ['TypeScript', 'JavaScript', 'Types'],
-      authorId: users[0].id,
+      authorId: defaultAuthor.id,
       status: 'published',
       viewCount: 89,
       createdAt: new Date('2024-01-20'),
@@ -261,27 +338,34 @@ CSS Grid 是一个强大的二维布局系统，它可以同时处理行和列�
 - \`grid-column\` - 控制列的起始和结束
 - \`grid-row\` - 控制行的起始和结束
 - \`grid-area\` - 简写属性`,
+      summary: '全面介绍 CSS Grid 布局系统，从基础概念到高级技巧。',
       excerpt: '全面介绍 CSS Grid 布局系统，从基础概念到高级技巧。',
-      coverImage: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=CSS+Grid+layout+visualization+with+colorful+grid+lines+and+modern+web+design&image_size=landscape_16_9',
+      coverImage:
+        'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=CSS+Grid+layout+visualization+with+colorful+grid+lines+and+modern+web+design&image_size=landscape_16_9',
       category: 'CSS',
       tags: ['CSS', 'Grid', 'Layout', 'Frontend'],
-      authorId: users[0].id,
+      authorId: defaultAuthor.id,
       status: 'published',
       viewCount: 234,
       createdAt: new Date('2024-01-25'),
       updatedAt: new Date('2024-01-25'),
-    }
+    },
   ];
-  
+
   articles = [...sampleArticles];
-  
-  // Sample comments
-  const sampleComments = [
+  const reactArticle = sampleArticles[0];
+  const typeScriptArticle = sampleArticles[1];
+
+  if (!reactArticle || !typeScriptArticle) {
+    throw new Error('Failed to initialize mock articles');
+  }
+
+  const sampleComments: MockComment[] = [
     {
       id: generateId(),
       content: '很棒的文章！学到了很多关于 React Hooks 的知识。',
-      articleId: articles[0].id,
-      authorId: users[0].id,
+      articleId: reactArticle.id,
+      authorId: defaultAuthor.id,
       authorName: '访客用户',
       authorEmail: 'visitor@example.com',
       status: 'approved',
@@ -291,18 +375,17 @@ CSS Grid 是一个强大的二维布局系统，它可以同时处理行和列�
     {
       id: generateId(),
       content: 'TypeScript 的条件类型确实很强大，感谢分享！',
-      articleId: articles[1].id,
-      authorId: users[0].id,
+      articleId: typeScriptArticle.id,
+      authorId: defaultAuthor.id,
       authorName: '技术爱好者',
       authorEmail: 'tech@example.com',
       status: 'approved',
       createdAt: new Date('2024-01-21'),
       updatedAt: new Date('2024-01-21'),
-    }
+    },
   ];
-  
+
   comments = [...sampleComments];
 };
 
-// Initialize mock data
 initializeMockData();

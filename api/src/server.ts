@@ -5,7 +5,6 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 
-import { sequelize } from './utils/database';
 import authRoutes from './routes/auth';
 import articleRoutes from './routes/articles';
 import commentRoutes from './routes/comments';
@@ -13,11 +12,11 @@ import commentRoutes from './routes/comments';
 // Load environment variables
 dotenv.config();
 
-const app = express();
-const PORT = process.env.PORT || 3001;
+const app: express.Express = express();
+const PORT = process.env['PORT'] || 3001;
 
 // Security middleware
-const FRONTEND_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_ORIGIN = process.env['FRONTEND_URL'] || 'http://localhost:5173';
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -55,12 +54,14 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/comments', commentRoutes);
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
+app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  void req;
+  void next;
+  console.error(err instanceof Error ? err.stack : err);
   res.status(500).json({
     success: false,
     message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
+    error: process.env['NODE_ENV'] === 'development' && err instanceof Error ? err.message : undefined,
   });
 });
 

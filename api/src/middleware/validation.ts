@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { ApiResponse } from '../types';
 
 export const validateRequest = (schema: z.ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction): void => {

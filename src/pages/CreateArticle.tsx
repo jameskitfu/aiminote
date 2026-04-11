@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { articleAPI } from '../services/api';
 import { Save, Send } from 'lucide-react';
 import Button from '../components/Button';
+import { renderMarkdownToHtml } from '../lib/articleContent';
 
 export default function CreateArticle() {
   const navigate = useNavigate();
@@ -20,7 +21,10 @@ export default function CreateArticle() {
 
   const categories = ['React', 'TypeScript', 'JavaScript', 'CSS', 'Vue', '其他'];
 
-  const previewHtml = useMemo(() => mdToHtml(formData.content), [formData.content]);
+  const previewHtml = useMemo(
+    () => renderMarkdownToHtml(formData.content),
+    [formData.content]
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -41,17 +45,13 @@ export default function CreateArticle() {
         ...formData,
         tags,
         coverImage: formData.coverImage || undefined,
-        content: mdToHtml(formData.content)
+        content: renderMarkdownToHtml(formData.content),
       };
 
-      const response = await articleAPI.createArticle(articleData);
-      if (response.success) {
-        navigate(`/articles/${response.data.id}`);
-      } else {
-        setError(response.message || '创建文章失败');
-      }
+      const article = await articleAPI.createArticle(articleData);
+      navigate(`/articles/${article.id}`);
     } catch (err) {
-      setError('创建文章失败，请检查网络连接');
+      setError(err instanceof Error ? err.message : '创建文章失败，请检查网络连接');
     } finally {
       setLoading(false);
     }
@@ -208,27 +208,3 @@ export default function CreateArticle() {
       </div>
   );
 }
-const mdToHtml = (md: string) => {
-    let text = md || '';
-    const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    // code blocks
-    text = text.replace(/```([\s\S]*?)```/g, (_, code) => `<pre class="p-4 rounded-2xl bg-slate-900 text-slate-100 overflow-x-auto"><code>${escape(code)}</code></pre>`);
-    // headings
-    text = text.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
-    text = text.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
-    text = text.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>');
-    // bold/italic
-    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    // links
-    text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    // paragraphs
-    text = text
-      .split(/\n\n+/)
-      .map(block => {
-        if (/^<h\d|<pre/.test(block)) return block;
-        return `<p>${block.replace(/\n/g, '<br/>')}</p>`;
-      })
-      .join('\n');
-    return text;
-  };

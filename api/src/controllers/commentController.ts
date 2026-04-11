@@ -1,10 +1,23 @@
 import { Request, Response } from 'express';
-import { findCommentsByArticleId, createComment as createCommentMock, deleteComment as deleteCommentMock } from '../utils/mockDatabase';
+import { AuthRequest } from '../types';
+import {
+  createComment as createCommentMock,
+  deleteComment as deleteCommentMock,
+  findCommentsByArticleId,
+} from '../utils/mockDatabase';
 
 export const getCommentsByArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     const { articleId } = req.params;
     const { page = 1, limit = 20 } = req.query;
+
+    if (!articleId) {
+      res.status(400).json({
+        success: false,
+        message: 'Article ID is required',
+      });
+      return;
+    }
     
     const allComments = findCommentsByArticleId(articleId);
     const total = allComments.length;
@@ -37,6 +50,14 @@ export const createComment = async (req: Request, res: Response): Promise<void> 
     const { articleId } = req.params;
     const { author_name, content } = req.body;
 
+    if (!articleId) {
+      res.status(400).json({
+        success: false,
+        message: 'Article ID is required',
+      });
+      return;
+    }
+
     const comment = createCommentMock({
       articleId,
       authorName: author_name || '匿名用户',
@@ -59,10 +80,17 @@ export const createComment = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const deleteComment = async (req: Request, res: Response): Promise<void> => {
+export const deleteComment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const userId = (req as any).user?.userId;
+
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'Comment ID is required',
+      });
+      return;
+    }
 
     const success = deleteCommentMock(id);
 

@@ -10,7 +10,7 @@ import {
 import { authenticateToken } from '../middleware/auth';
 import { validateRequest, articleSchema } from '../middleware/validation';
 
-const router = Router();
+const router: Router = Router();
 
 // Public routes
 router.get('/', getArticles);

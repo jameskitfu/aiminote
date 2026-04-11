@@ -1,6 +1,7 @@
-import { Article, Category, Comment, User, AuthResponse } from '../types';
+import { Article, AuthResponse, User } from '../types';
 
-const API_BASE_URL = 'http://localhost:3002/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:3001/api';
 
 // Helper function for API requests
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {

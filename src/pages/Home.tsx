@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import ArticleCard from '../components/ArticleCard';
 import CategoryNav from '../components/CategoryNav';
 import SearchBar from '../components/SearchBar';

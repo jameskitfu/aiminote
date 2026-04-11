@@ -4,6 +4,7 @@ import { Article, Comment } from '../types';
 import { articleAPI, commentAPI } from '../services/api';
 import { Calendar, User, MessageCircle, Send, Loader2 } from 'lucide-react';
 import Button from '../components/Button';
+import { toSafeArticleHtml } from '../lib/articleContent';
 
 const ArticleDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -65,7 +66,7 @@ const ArticleDetail: React.FC = () => {
       });
       
       // Add the new comment to the list
-      setComments([response, ...comments]);
+      setComments((currentComments) => [response, ...currentComments]);
       setNewComment('');
       setCommentAuthor('');
     } catch (err) {
@@ -134,9 +135,9 @@ const ArticleDetail: React.FC = () => {
               {article.title}
             </h1>
             
-            {article.excerpt && (
+            {(article.summary || article.excerpt) && (
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
-                {article.excerpt}
+                {article.summary || article.excerpt}
               </p>
             )}
             
@@ -159,7 +160,7 @@ const ArticleDetail: React.FC = () => {
             <div className="prose-aimi">
               <div 
                 className="text-slate-700 dark:text-slate-300 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: article.content }}
+                dangerouslySetInnerHTML={{ __html: toSafeArticleHtml(article.content) }}
               />
             </div>
 

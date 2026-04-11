@@ -22,6 +22,7 @@ const Articles: React.FC = () => {
         const data = await articleAPI.getCategories();
         setCategories(data);
       } catch (err) {
+        console.error('Error fetching categories:', err);
         // Fallback (与 Home 保持一致)
         setCategories([
           { id: 'react', name: 'React', slug: 'react', count: 0 },

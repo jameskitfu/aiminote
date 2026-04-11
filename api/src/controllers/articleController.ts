@@ -1,6 +1,14 @@
 import { Request, Response } from 'express';
-import { findAllArticles, findArticleById, createArticle as createArticleMock, updateArticle as updateArticleMock, deleteArticle as deleteArticleMock } from '../utils/mockDatabase';
-import { findUserById } from '../utils/mockDatabase';
+import { AuthRequest } from '../types';
+import {
+  createArticle as createArticleMock,
+  deleteArticle as deleteArticleMock,
+  findAllArticles,
+  findArticleById,
+  findUserById,
+  updateArticle as updateArticleMock,
+} from '../utils/mockDatabase';
+import { sanitizeArticleContent } from '../utils/content';
 
 export const getArticles = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -51,6 +59,14 @@ export const getArticleById = async (req: Request, res: Response): Promise<void>
   try {
     const { id } = req.params;
 
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'Article ID is required',
+      });
+      return;
+    }
+
     const article = findArticleById(id);
 
     if (!article) {
@@ -85,15 +101,26 @@ export const getArticleById = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const createArticle = async (req: Request, res: Response): Promise<void> => {
+export const createArticle = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = (req as any).user.userId;
-    const { title, content, excerpt, coverImage, category, tags } = req.body;
+    const userId = req.user?.userId;
+    const { title, content, summary, excerpt, coverImage, category, tags } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+      return;
+    }
+
+    const normalizedSummary = summary ?? excerpt ?? '';
 
     const article = createArticleMock({
       title,
-      content,
-      excerpt,
+      content: sanitizeArticleContent(content),
+      summary: normalizedSummary,
+      excerpt: normalizedSummary,
       coverImage: coverImage || 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=abstract+programming+concept+with+modern+code+editor+interface&image_size=landscape_16_9',
       category,
       tags: tags || [],
@@ -127,11 +154,27 @@ export const createArticle = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const updateArticle = async (req: Request, res: Response): Promise<void> => {
+export const updateArticle = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const userId = (req as any).user.userId;
-    const { title, content, excerpt, coverImage, category, tags } = req.body;
+    const userId = req.user?.userId;
+    const { title, content, summary, excerpt, coverImage, category, tags } = req.body;
+
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'Article ID is required',
+      });
+      return;
+    }
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+      return;
+    }
 
     const article = findArticleById(id);
 
@@ -151,11 +194,13 @@ export const updateArticle = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    const normalizedSummary = summary ?? excerpt;
+
     // Update article
     const updatedArticle = updateArticleMock(id, {
       ...(title && { title }),
-      ...(content && { content }),
-      ...(excerpt && { excerpt }),
+      ...(content && { content: sanitizeArticleContent(content) }),
+      ...(normalizedSummary && { summary: normalizedSummary, excerpt: normalizedSummary }),
       ...(coverImage && { coverImage }),
       ...(category && { category }),
       ...(tags && { tags }),
@@ -194,10 +239,26 @@ export const updateArticle = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const deleteArticle = async (req: Request, res: Response): Promise<void> => {
+export const deleteArticle = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const userId = (req as any).user.userId;
+    const userId = req.user?.userId;
+
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'Article ID is required',
+      });
+      return;
+    }
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+      return;
+    }
 
     const article = findArticleById(id);
 
@@ -242,13 +303,13 @@ export const deleteArticle = async (req: Request, res: Response): Promise<void> 
 
 export const getCategories = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Get unique categories from articles
-    const categories = [...new Set(findAllArticles().articles.map(article => article.category))];
+    const allArticles = findAllArticles({ limit: Number.MAX_SAFE_INTEGER }).articles;
+    const categories = [...new Set(allArticles.map((article) => article.category))];
     
     const categoryList = categories.map(category => ({
       name: category,
       slug: category.toLowerCase().replace(/\s+/g, '-'),
-      count: findAllArticles().articles.filter(article => article.category === category).length,
+      count: allArticles.filter(article => article.category === category).length,
     }));
 
     res.json({

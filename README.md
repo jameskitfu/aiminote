@@ -1,57 +1,126 @@
-# React + TypeScript + Vite
+# Aiminote
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[中文说明](./README.zh-CN.md)
 
-Currently, two official plugins are available:
+Aiminote is a full-stack blog demo focused on frontend engineering content. The repository contains a Vite + React client and an Express + TypeScript API with a lightweight mock data layer for local development.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Highlights
 
-## Expanding the ESLint configuration
+- Browse articles by category, search keyword, and detail page
+- Log in with a demo account and create new articles
+- Public article comments with authenticated comment deletion
+- Safer article rendering with server-side and client-side HTML sanitization
+- Separate frontend and backend build and lint workflows
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- Frontend: React, TypeScript, Vite, React Router, Tailwind CSS
+- Backend: Express, TypeScript, Zod, JWT, Sequelize
+- Development data: in-memory mock database seeded at server startup
+
+## Repository Structure
+
+```text
+.
+├─ src/                Frontend application
+├─ api/                Backend API
+├─ public/             Static assets
+├─ DEPLOYMENT.md       Production deployment notes
+└─ README.zh-CN.md     Chinese documentation
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Requirements
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Node.js 18+
+- pnpm 9+
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Getting Started
+
+### 1. Install dependencies
+
+```bash
+pnpm install
+cd api && pnpm install
 ```
+
+### 2. Start the backend
+
+```bash
+cd api
+pnpm dev
+```
+
+The API runs on `http://localhost:3001` by default.
+
+### 3. Start the frontend
+
+Open a second terminal:
+
+```bash
+pnpm dev
+```
+
+The frontend runs on `http://localhost:5173` by default.
+
+## Environment Variables
+
+### Frontend
+
+The frontend reads the API base URL from `VITE_API_BASE_URL`. If it is not set, it falls back to `http://localhost:3001/api`.
+
+Example `.env.local`:
+
+```env
+VITE_API_BASE_URL=http://localhost:3001/api
+```
+
+### Backend
+
+The backend uses `api/.env`.
+
+Important variables:
+
+```env
+PORT=3001
+FRONTEND_URL=http://localhost:5173
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+```
+
+The current local setup uses an in-memory SQLite configuration for development-style demo data, so data resets whenever the backend restarts.
+
+## Demo Account
+
+Use the seeded account to test authenticated flows:
+
+- Email: `aimi@example.com`
+- Password: `password`
+
+## Available Scripts
+
+### Frontend
+
+```bash
+pnpm dev
+pnpm check
+pnpm lint
+pnpm build
+pnpm preview
+```
+
+### Backend
+
+```bash
+cd api
+pnpm dev
+pnpm typecheck
+pnpm lint
+pnpm build
+pnpm start
+```
+
+## Notes
+
+- Article content is sanitized before storage and again before rendering.
+- Comment creation is public, while comment deletion requires authentication.
+- `DEPLOYMENT.md` contains a production-oriented deployment walkthrough.

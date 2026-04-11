@@ -1,7 +1,21 @@
 import { Request, Response } from 'express';
+import { AuthRequest, AuthResponse, LoginRequest, RegisterRequest } from '../types';
 import { createUser, findUserByEmail, findUserById } from '../utils/mockDatabase';
 import { generateToken, hashPassword, comparePassword } from '../utils/auth';
-import { AuthResponse, RegisterRequest, LoginRequest } from '../types';
+
+const serializeAuthUser = (user: {
+  id: string;
+  username: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}) => ({
+  id: user.id,
+  username: user.username,
+  email: user.email,
+  created_at: user.createdAt,
+  updated_at: user.updatedAt,
+});
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -59,14 +73,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log('Login request body:', req.body);
     const { email, password }: LoginRequest = req.body;
-
-    console.log('Login attempt:', { email, password: password ? '***' : 'missing' });
 
     // Find user
     const user = findUserByEmail(email);
-    console.log('User found:', user ? 'yes' : 'no');
 
     if (!user) {
       res.status(401).json({
@@ -77,9 +87,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Check password
-    console.log('Checking password...');
     const isPasswordValid = await comparePassword(password, user.password_hash);
-    console.log('Password valid:', isPasswordValid);
 
     if (!isPasswordValid) {
       res.status(401).json({
@@ -118,9 +126,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getProfile = async (req: Request, res: Response): Promise<void> => {
+export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+      return;
+    }
 
     const user = findUserById(userId);
 
@@ -132,16 +148,9 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // Remove password hash from response
-    const { password_hash, ...userData } = user;
-
     res.json({
       success: true,
-      data: {
-        ...userData,
-        created_at: user.createdAt,
-        updated_at: user.updatedAt,
-      },
+      data: serializeAuthUser(user),
     });
   } catch (error) {
     console.error('Get profile error:', error);
@@ -152,10 +161,18 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = req.user?.userId;
     const { username, email } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+      return;
+    }
 
     const user = findUserById(userId);
 
@@ -172,17 +189,10 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     if (email) user.email = email;
     user.updatedAt = new Date();
 
-    // Remove password hash from response
-    const { password_hash, ...userData } = user;
-
     res.json({
       success: true,
       message: 'Profile updated successfully',
-      data: {
-        ...userData,
-        created_at: user.createdAt,
-        updated_at: user.updatedAt,
-      },
+      data: serializeAuthUser(user),
     });
   } catch (error) {
     console.error('Update profile error:', error);

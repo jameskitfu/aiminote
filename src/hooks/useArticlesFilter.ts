@@ -18,7 +18,7 @@ export function useArticlesFilter(
       const q = searchQuery.toLowerCase();
       result = result.filter(a =>
         a.title.toLowerCase().includes(q) ||
-        a.summary.toLowerCase().includes(q) ||
+        (a.summary || a.excerpt || '').toLowerCase().includes(q) ||
         (a.tags || []).some(tag => tag.toLowerCase().includes(q))
       );
     }
