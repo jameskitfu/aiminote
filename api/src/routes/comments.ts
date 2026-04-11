@@ -5,6 +5,7 @@ import {
   deleteComment,
 } from '../controllers/commentController';
 import { validateRequest, commentSchema } from '../middleware/validation';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -15,6 +16,6 @@ router.get('/article/:articleId', getCommentsByArticle);
 router.post('/article/:articleId', validateRequest(commentSchema), createComment);
 
 // Protected routes (require authentication for deletion)
-router.delete('/:id', deleteComment);
+router.delete('/:id', authenticateToken, deleteComment);
 
 export default router;
