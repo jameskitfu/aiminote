@@ -3,7 +3,7 @@ import ArticleCard from '../components/ArticleCard';
 import CategoryNav from '../components/CategoryNav';
 import SearchBar from '../components/SearchBar';
 import { articleAPI } from '../services/api';
-import { useI18n } from '@/contexts/I18nContext';
+import { useI18n } from '@/contexts/useI18n';
 import { Article, Category } from '../types';
 import { Loader2 } from 'lucide-react';
 import Button from '../components/Button';

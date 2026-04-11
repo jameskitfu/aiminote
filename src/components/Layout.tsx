@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { BookOpen, User, Home, FileText, LogIn, LogOut, X, Menu, Plus } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/useAuth';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageSwitch from '@/components/LanguageSwitch';
-import { useI18n } from '@/contexts/I18nContext';
+import { useI18n } from '@/contexts/useI18n';
 
 interface LayoutProps {
   children: React.ReactNode;

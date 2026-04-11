@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
-import { useI18n } from '@/contexts/I18nContext';
+import { useAuth } from '../contexts/useAuth';
+import { useI18n } from '@/contexts/useI18n';
 import Button from '../components/Button';
 import TextInput from '../components/TextInput';
 
