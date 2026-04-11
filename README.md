@@ -74,6 +74,8 @@ Example `.env.local`:
 VITE_API_BASE_URL=http://localhost:3001/api
 ```
 
+You can also copy the defaults from [`.env.example`](./.env.example).
+
 ### Backend
 
 The backend uses `api/.env`.

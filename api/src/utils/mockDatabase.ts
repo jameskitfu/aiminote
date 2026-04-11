@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 // Mock database for development without requiring actual database setup
 const generateId = () =>
   'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
@@ -5,6 +8,12 @@ const generateId = () =>
     const value = char === 'x' ? random : (random & 0x3) | 0x8;
     return value.toString(16);
   });
+
+const DATA_DIRECTORY = path.resolve(process.cwd(), '.runtime');
+const DATA_FILE_PATH = path.join(DATA_DIRECTORY, 'mock-database.json');
+
+const normalizeCategory = (value: string) =>
+  value.trim().toLowerCase().replace(/\s+/g, '-');
 
 export interface MockUser {
   id: string;
@@ -60,9 +69,109 @@ interface PaginatedArticles {
   pages: number;
 }
 
+interface PersistedMockUser extends Omit<MockUser, 'createdAt' | 'updatedAt'> {
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PersistedMockArticle
+  extends Omit<MockArticle, 'createdAt' | 'updatedAt'> {
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PersistedMockComment
+  extends Omit<MockComment, 'createdAt' | 'updatedAt'> {
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PersistedMockData {
+  users: PersistedMockUser[];
+  articles: PersistedMockArticle[];
+  comments: PersistedMockComment[];
+}
+
 let users: MockUser[] = [];
 let articles: MockArticle[] = [];
 let comments: MockComment[] = [];
+
+const serializeUser = (user: MockUser): PersistedMockUser => ({
+  ...user,
+  createdAt: user.createdAt.toISOString(),
+  updatedAt: user.updatedAt.toISOString(),
+});
+
+const serializeArticle = (article: MockArticle): PersistedMockArticle => ({
+  ...article,
+  createdAt: article.createdAt.toISOString(),
+  updatedAt: article.updatedAt.toISOString(),
+});
+
+const serializeComment = (comment: MockComment): PersistedMockComment => ({
+  ...comment,
+  createdAt: comment.createdAt.toISOString(),
+  updatedAt: comment.updatedAt.toISOString(),
+});
+
+const deserializeUser = (user: PersistedMockUser): MockUser => ({
+  ...user,
+  createdAt: new Date(user.createdAt),
+  updatedAt: new Date(user.updatedAt),
+});
+
+const deserializeArticle = (article: PersistedMockArticle): MockArticle => ({
+  ...article,
+  createdAt: new Date(article.createdAt),
+  updatedAt: new Date(article.updatedAt),
+});
+
+const deserializeComment = (comment: PersistedMockComment): MockComment => ({
+  ...comment,
+  createdAt: new Date(comment.createdAt),
+  updatedAt: new Date(comment.updatedAt),
+});
+
+const ensureDataDirectory = () => {
+  if (!fs.existsSync(DATA_DIRECTORY)) {
+    fs.mkdirSync(DATA_DIRECTORY, { recursive: true });
+  }
+};
+
+export const persistMockData = () => {
+  ensureDataDirectory();
+
+  const payload: PersistedMockData = {
+    users: users.map(serializeUser),
+    articles: articles.map(serializeArticle),
+    comments: comments.map(serializeComment),
+  };
+
+  fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(payload, null, 2), 'utf8');
+};
+
+const loadPersistedMockData = (): boolean => {
+  if (!fs.existsSync(DATA_FILE_PATH)) {
+    return false;
+  }
+
+  try {
+    const raw = fs.readFileSync(DATA_FILE_PATH, 'utf8');
+
+    if (!raw.trim()) {
+      return false;
+    }
+
+    const parsed = JSON.parse(raw) as Partial<PersistedMockData>;
+    users = (parsed.users ?? []).map(deserializeUser);
+    articles = (parsed.articles ?? []).map(deserializeArticle);
+    comments = (parsed.comments ?? []).map(deserializeComment);
+    return true;
+  } catch (error) {
+    console.error('Failed to load persisted mock data:', error);
+    return false;
+  }
+};
 
 export { generateId };
 
@@ -76,6 +185,7 @@ export const createUser = (
     updatedAt: new Date(),
   };
   users.push(user);
+  persistMockData();
   return user;
 };
 
@@ -95,6 +205,7 @@ export const createArticle = (
     updatedAt: new Date(),
   };
   articles.push(article);
+  persistMockData();
   return article;
 };
 
@@ -102,8 +213,9 @@ export const findAllArticles = (options: FindArticlesOptions = {}): PaginatedArt
   let filteredArticles = [...articles];
 
   if (options.category && options.category !== 'all') {
+    const targetCategory = normalizeCategory(options.category);
     filteredArticles = filteredArticles.filter(
-      (article) => article.category === options.category
+      (article) => normalizeCategory(article.category) === targetCategory
     );
   }
 
@@ -160,6 +272,7 @@ export const updateArticle = (
   };
 
   articles[index] = updatedArticle;
+  persistMockData();
   return updatedArticle;
 };
 
@@ -170,6 +283,7 @@ export const deleteArticle = (id: string): boolean => {
   }
 
   articles.splice(index, 1);
+  persistMockData();
   return true;
 };
 
@@ -183,6 +297,7 @@ export const createComment = (
     updatedAt: new Date(),
   };
   comments.push(comment);
+  persistMockData();
   return comment;
 };
 
@@ -200,10 +315,15 @@ export const deleteComment = (id: string): boolean => {
   }
 
   comments.splice(index, 1);
+  persistMockData();
   return true;
 };
 
 export const initializeMockData = () => {
+  if (loadPersistedMockData()) {
+    return;
+  }
+
   const sampleUsers: MockUser[] = [
     {
       id: generateId(),
@@ -386,6 +506,7 @@ CSS Grid 是一个强大的二维布局系统，它可以同时处理行和列�
   ];
 
   comments = [...sampleComments];
+  persistMockData();
 };
 
 initializeMockData();

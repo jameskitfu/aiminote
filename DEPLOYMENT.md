@@ -31,15 +31,15 @@
 
 2. 配置环境变量 `.env`（与 `api` 目录同级）
 
-   - `PORT`：API 监听端口，建议与前端代码一致设置为 `3002`
-   - `FRONTEND_URL`：前端站点地址，用于 CORS 允许来源
+   - `PORT`：API 监听端口，默认是 `3001`
+   - `FRONTEND_URL`：允许跨域的前端地址，支持逗号分隔多个域名
    - `JWT_SECRET`：JWT 密钥，生产必须设置为强随机值
    - `JWT_EXPIRES_IN`：令牌有效期，默认 `7d`
 
    示例（`api/.env`）：
 
    ```env
-   PORT=3002
+   PORT=3001
    FRONTEND_URL=https://aiminote.example.com
    JWT_SECRET=replace-with-a-strong-random-secret
    JWT_EXPIRES_IN=7d
@@ -100,19 +100,20 @@
 
 ## 前端部署（静态站点）
 
-1. 设置 API 地址（生产必改）
+1. 设置 API 地址
 
-   前端当前在 `src/services/api.ts` 中硬编码了 API 地址：
+   前端当前支持通过环境变量 `VITE_API_BASE_URL` 配置 API 地址：
 
-   - `http://localhost:3002/api`（需改为你的域名或服务器 IP）
+   - 开发环境默认使用 `http://localhost:3001/api`
+   - 生产环境默认使用同域 `/api`
 
-   建议将其修改为：
+   如果你是前后端同域部署并通过 Nginx 反代 `/api`，通常不需要额外配置。
 
-   ```ts
-   const API_BASE_URL = 'https://aiminote.example.com/api';
+   如果你是前后端分开部署，可以在前端构建前提供：
+
+   ```env
+   VITE_API_BASE_URL=https://api.aiminote.example.com/api
    ```
-
-   修改后重新构建前端。
 
 2. 构建静态文件
 
@@ -143,7 +144,7 @@
 
      # 反向代理 API（保持路径前缀）
      location /api/ {
-       proxy_pass http://127.0.0.1:3002/api/;
+       proxy_pass http://127.0.0.1:3001/api/;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -174,7 +175,7 @@
 
 ## 验证与联调
 
-1. API 健康检查：`http://127.0.0.1:3002/health`
+1. API 健康检查：`http://127.0.0.1:3001/health`
 2. 前端页面能正常访问 `aiminote.example.com`
 3. 登录/注册接口：
    - 后端登录路由：`POST /api/auth/login`
@@ -204,18 +205,16 @@
 
 ## 常见问题
 
-- 端口不一致：前端默认请求 `http://localhost:3002/api`，而后端默认端口为 `3001`。建议统一为 `3002` 或在 `src/services/api.ts` 中改为你的域名。
+- 端口不一致：开发环境前端默认请求 `http://localhost:3001/api`，生产环境默认走同域 `/api`。如果是分域部署，请设置 `VITE_API_BASE_URL`。
 - 数据不持久：后端当前使用 SQLite 内存模式（`storage=':memory:'`），生产需改为文件或 MySQL。
-- 跨域失败：检查 `FRONTEND_URL` 与 Nginx 访问域名是否一致，协议（http/https）也需一致。
+- 跨域失败：检查 `FRONTEND_URL` 与实际前端域名是否一致，协议（http/https）也需一致；如有多个来源，可用逗号分隔。
 - JWT 报错：确保 `JWT_SECRET` 已设置且与生成令牌使用的一致。
 
 ## 参考代码位置
 
-- 前端 API 基地址：`src/services/api.ts` 第 3 行
-- 后端端口与 CORS：`api/src/server.ts` 第 17、20 行
+- 前端 API 基地址：`src/services/api.ts`
+- 后端端口与 CORS：`api/src/server.ts`
 - 后端数据库配置：`api/src/utils/database.ts` 第 20–22 行
 
 ---
-
-如需将前端 API 地址改为可配置的环境变量（`VITE_API_BASE_URL`），可以在后续开发中将 `src/services/api.ts` 读取 `import.meta.env.VITE_API_BASE_URL`，并在构建时通过 `.env.production` 注入。
 

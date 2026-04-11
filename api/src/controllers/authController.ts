@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import { AuthRequest, AuthResponse, LoginRequest, RegisterRequest } from '../types';
-import { createUser, findUserByEmail, findUserById } from '../utils/mockDatabase';
+import {
+  createUser,
+  findUserByEmail,
+  findUserById,
+  persistMockData,
+} from '../utils/mockDatabase';
 import { generateToken, hashPassword, comparePassword } from '../utils/auth';
 
 const serializeAuthUser = (user: {
@@ -188,6 +193,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     if (username) user.username = username;
     if (email) user.email = email;
     user.updatedAt = new Date();
+    persistMockData();
 
     res.json({
       success: true,

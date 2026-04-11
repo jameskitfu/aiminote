@@ -14,9 +14,38 @@ dotenv.config();
 
 const app: express.Express = express();
 const PORT = process.env['PORT'] || 3001;
+const isProduction = process.env['NODE_ENV'] === 'production';
+
+const expandLocalOrigins = (origins: string[]) => {
+  const allowedOrigins = new Set(origins);
+
+  for (const origin of origins) {
+    try {
+      const url = new URL(origin);
+      const port = url.port ? `:${url.port}` : '';
+
+      if (url.hostname === 'localhost') {
+        allowedOrigins.add(`${url.protocol}//127.0.0.1${port}`);
+      }
+
+      if (url.hostname === '127.0.0.1') {
+        allowedOrigins.add(`${url.protocol}//localhost${port}`);
+      }
+    } catch {
+      // Ignore invalid origin strings and keep the original explicit value only.
+    }
+  }
+
+  return [...allowedOrigins];
+};
 
 // Security middleware
-const FRONTEND_ORIGIN = process.env['FRONTEND_URL'] || 'http://localhost:5173';
+const FRONTEND_ORIGINS = expandLocalOrigins(
+  (process.env['FRONTEND_URL'] || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -25,7 +54,14 @@ app.use(
 );
 app.use(
   cors({
-    origin: FRONTEND_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin || FRONTEND_ORIGINS.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
     credentials: true,
   })
 );
@@ -34,7 +70,13 @@ app.use(
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  message: {
+    success: false,
+    message: '请求过于频繁，请稍后再试。',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => !isProduction,
 });
 app.use('/api/', limiter);
 

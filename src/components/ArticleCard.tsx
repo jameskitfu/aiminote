@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar, User, Tag } from 'lucide-react';
 import { Article } from '../types';
 
@@ -8,6 +8,9 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
+  const navigate = useNavigate();
+  const articleUrl = `/articles/${article.id}`;
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('zh-CN', {
       year: 'numeric',
@@ -16,8 +19,34 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
     });
   };
 
+  const handleCardClick = (event: React.MouseEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement;
+
+    if (target.closest('a, button')) {
+      return;
+    }
+
+    navigate(articleUrl);
+  };
+
+  const handleCardKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    navigate(articleUrl);
+  };
+
   return (
-    <article className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+    <article
+      role="link"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
+      className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all duration-200"
+      aria-label={`查看文章：${article.title}`}
+    >
       <div className="p-6">
         {/* Category badge */}
         <div className="flex items-center justify-between mb-3">
@@ -28,7 +57,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
 
         {/* Title */}
         <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2 hover:text-blue-900 dark:hover:text-blue-300 transition-colors">
-          <Link to={`/articles/${article.id}`}>
+          <Link to={articleUrl}>
             {article.title}
           </Link>
         </h2>
@@ -69,7 +98,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
             </div>
           </div>
           <Link
-            to={`/articles/${article.id}`}
+            to={articleUrl}
             className="text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 font-medium"
           >
             阅读更多 →

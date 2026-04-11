@@ -35,10 +35,10 @@ const About: React.FC = () => {
   return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-8">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-brand-700 to-brand px-8 py-12 text-white rounded-2xl shadow-soft dark:from-brand-700/40 dark:to-brand/30">
             <div className="flex items-center space-x-6">
-              <div className="h-24 w-24 bg-white rounded-full flex items-center justify-center">
+              <div className="h-24 w-24 bg-white/95 dark:bg-slate-100 rounded-full flex items-center justify-center">
                 <span className="text-3xl font-bold text-brand-700">爱米</span>
               </div>
               <div>
@@ -53,19 +53,19 @@ const About: React.FC = () => {
           
           <div className="px-8 py-6">
             <div className="flex space-x-6">
-              <a href="mailto:aimi@example.com" className="flex items-center text-slate-600 hover:text-blue-600 transition-colors">
+              <a href="mailto:aimi@example.com" className="flex items-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-brand transition-colors">
                 <Mail className="h-5 w-5 mr-2" />
                 aimi@example.com
               </a>
-              <a href="https://github.com/aimi" target="_blank" rel="noopener noreferrer" className="flex items-center text-slate-600 hover:text-blue-600 transition-colors">
+              <a href="https://github.com/aimi" target="_blank" rel="noopener noreferrer" className="flex items-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-brand transition-colors">
                 <Github className="h-5 w-5 mr-2" />
                 GitHub
               </a>
-              <a href="https://linkedin.com/in/aimi" target="_blank" rel="noopener noreferrer" className="flex items-center text-slate-600 hover:text-blue-600 transition-colors">
+              <a href="https://linkedin.com/in/aimi" target="_blank" rel="noopener noreferrer" className="flex items-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-brand transition-colors">
                 <Linkedin className="h-5 w-5 mr-2" />
                 LinkedIn
               </a>
-              <a href="https://www.xiaohongshu.com/" target="_blank" rel="noopener noreferrer" className="flex items-center text-slate-600 hover:text-blue-600 transition-colors">
+              <a href="https://www.xiaohongshu.com/" target="_blank" rel="noopener noreferrer" className="flex items-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-brand transition-colors">
                 <Link className="h-5 w-5 mr-2" />
                 小红书
               </a>
@@ -74,9 +74,9 @@ const About: React.FC = () => {
         </div>
 
         {/* Skills Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-8">
-          <div className="px-8 py-6 border-b border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900 flex items-center">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-8">
+          <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center">
               <Zap className="h-6 w-6 mr-3 text-yellow-500" />
               技术技能
             </h2>
@@ -92,10 +92,10 @@ const About: React.FC = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-medium text-slate-700">{skill.name}</span>
-                        <span className="text-sm text-slate-500">{skill.level}%</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{skill.name}</span>
+                        <span className="text-sm text-slate-500 dark:text-slate-400">{skill.level}%</span>
                       </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${skill.color} transition-all duration-500`}
                           style={{ width: `${skill.level}%` }}
@@ -110,9 +110,9 @@ const About: React.FC = () => {
         </div>
 
         {/* Experience Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-8">
-          <div className="px-8 py-6 border-b border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900">工作经历</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-8">
+          <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">工作经历</h2>
           </div>
           <div className="px-8 py-6">
             <div className="space-y-6">
@@ -121,11 +121,11 @@ const About: React.FC = () => {
                   <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
                   <div className="flex-1">
                     <div className="flex justify-between items-start mb-1">
-                      <h3 className="text-lg font-semibold text-slate-900">{exp.title}</h3>
-                      <span className="text-sm text-slate-500">{exp.period}</span>
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{exp.title}</h3>
+                      <span className="text-sm text-slate-500 dark:text-slate-400">{exp.period}</span>
                     </div>
-                    <p className="text-blue-600 font-medium mb-2">{exp.company}</p>
-                    <p className="text-slate-600 leading-relaxed">{exp.description}</p>
+                    <p className="text-blue-600 dark:text-brand font-medium mb-2">{exp.company}</p>
+                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{exp.description}</p>
                   </div>
                 </div>
               ))}
@@ -134,12 +134,12 @@ const About: React.FC = () => {
         </div>
 
         {/* Personal Introduction */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-8 py-6 border-b border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900">关于我</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">关于我</h2>
           </div>
           <div className="px-8 py-6">
-            <div className="prose prose-lg max-w-none text-slate-700 leading-relaxed">
+            <div className="prose prose-lg max-w-none text-slate-700 dark:text-slate-300 leading-relaxed">
               <p className="mb-4">
                 大家好，我是爱米，一名充满热情的前端开发工程师。从事前端开发工作已有 6 年多，
                 在这期间我见证了前端技术的快速发展，也积累了丰富的项目经验。

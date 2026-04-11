@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import { Article } from '../types';
 
+const normalizeCategory = (value: string) =>
+  value.trim().toLowerCase().replace(/\s+/g, '-');
+
 export function useArticlesFilter(
   articles: Article[],
   searchQuery: string,
@@ -10,8 +13,8 @@ export function useArticlesFilter(
     let result = articles;
 
     if (activeCategory && activeCategory !== 'all') {
-      const cat = activeCategory.toLowerCase();
-      result = result.filter(a => a.category.toLowerCase() === cat);
+      const cat = normalizeCategory(activeCategory);
+      result = result.filter(a => normalizeCategory(a.category) === cat);
     }
 
     if (searchQuery && searchQuery.trim()) {

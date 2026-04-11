@@ -74,6 +74,8 @@ pnpm dev
 VITE_API_BASE_URL=http://localhost:3001/api
 ```
 
+也可以直接参考 [`.env.example`](./.env.example) 里的默认配置。
+
 ### 后端
 
 后端使用 `api/.env`。
