@@ -5,6 +5,7 @@
 - 文章来自仓库里的 `src/content/posts/*.md`
 - 评论使用 Giscus
 - 不再依赖 `api/` 后端服务即可上线
+- Vercel 会通过 `.vercelignore` 明确忽略根目录下的 `api/`
 
 ## 推荐部署平台
 
@@ -18,7 +19,8 @@
 1. 把仓库连接到部署平台
 2. 设置生产分支为 `main`
 3. 配好 Giscus 环境变量
-4. 之后任何人只要把文章 Markdown 直接 push 到 `main`，站点就会自动重新部署
+4. Vercel 会读取 `vercel.json` 并只构建静态前端
+5. 之后任何人只要把文章 Markdown 直接 push 到 `main`，站点就会自动重新部署
 
 ## 必要环境变量
 
@@ -42,6 +44,8 @@ pnpm install
 pnpm dev
 pnpm build
 ```
+
+注意：本地开发已经不再内置 `/api` 代理；当前前端只依赖仓库内 Markdown 内容和 Giscus 配置。
 
 ## 发文规范
 
