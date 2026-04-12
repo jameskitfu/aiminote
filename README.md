@@ -2,30 +2,32 @@
 
 [中文说明](./README.zh-CN.md)
 
-Aiminote is a full-stack blog demo focused on frontend engineering content. The repository contains a Vite + React client and an Express + TypeScript API with a lightweight mock data layer for local development.
+Aiminote is now a static-content frontend blog focused on frontend engineering content. Articles live in the repository as Markdown files, and the site builds to a pure Vite + React frontend that can be deployed for free on platforms like Vercel or Cloudflare Pages.
 
 ## Highlights
 
 - Browse articles by category, search keyword, and detail page
-- Log in with a demo account and create new articles
-- Public article comments with authenticated comment deletion
-- Safer article rendering with server-side and client-side HTML sanitization
-- Separate frontend and backend build and lint workflows
+- Store article content in `src/content/posts/*.md`
+- Support Git-based publishing workflows for collaborators who push content directly
+- Use Giscus for comments so readers can discuss with GitHub accounts
+- Render Markdown safely on the client
 
 ## Tech Stack
 
 - Frontend: React, TypeScript, Vite, React Router, Tailwind CSS
-- Backend: Express, TypeScript, Zod, JWT, Sequelize
-- Development data: in-memory mock database seeded at server startup
+- Content source: Markdown files inside the repository
+- Comments: Giscus
 
 ## Repository Structure
 
 ```text
 .
-├─ src/                Frontend application
-├─ api/                Backend API
+├─ src/
+│  ├─ content/posts/   Markdown article source
+│  ├─ pages/           Frontend pages
+│  └─ components/      Shared UI and comments component
 ├─ public/             Static assets
-├─ DEPLOYMENT.md       Production deployment notes
+├─ DEPLOYMENT.md       Static deployment notes
 └─ README.zh-CN.md     Chinese documentation
 ```
 
@@ -40,67 +42,32 @@ Aiminote is a full-stack blog demo focused on frontend engineering content. The 
 
 ```bash
 pnpm install
-cd api && pnpm install
 ```
 
-### 2. Start the backend
-
-```bash
-cd api
-pnpm dev
-```
-
-The API runs on `http://localhost:3001` by default.
-
-### 3. Start the frontend
-
-Open a second terminal:
+### 2. Start the frontend
 
 ```bash
 pnpm dev
 ```
 
-The frontend runs on `http://localhost:5173` by default.
+The site runs on `http://localhost:5173` by default.
 
 ## Environment Variables
 
-### Frontend
-
-The frontend reads the API base URL from `VITE_API_BASE_URL`. If it is not set, it falls back to `http://localhost:3001/api`.
-
-Example `.env.local`:
+Comments are configured through Giscus. Example `.env.local`:
 
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_GISCUS_REPO=owner/repo
+VITE_GISCUS_REPO_ID=R_kgDOExample
+VITE_GISCUS_CATEGORY=General
+VITE_GISCUS_CATEGORY_ID=DIC_kwDOExample4Ct
+VITE_GISCUS_MAPPING=pathname
+VITE_GISCUS_LANG=zh-CN
 ```
 
-You can also copy the defaults from [`.env.example`](./.env.example).
-
-### Backend
-
-The backend uses `api/.env`.
-
-Important variables:
-
-```env
-PORT=3001
-FRONTEND_URL=http://localhost:5173
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-JWT_EXPIRES_IN=7d
-```
-
-The current local setup uses an in-memory SQLite configuration for development-style demo data, so data resets whenever the backend restarts.
-
-## Demo Account
-
-Use the seeded account to test authenticated flows:
-
-- Email: `aimi@example.com`
-- Password: `password`
+You can copy the defaults from [`.env.example`](./.env.example). If these values are not set, the article page will show a friendly placeholder instead of a live comments widget.
 
 ## Available Scripts
-
-### Frontend
 
 ```bash
 pnpm dev
@@ -110,19 +77,15 @@ pnpm build
 pnpm preview
 ```
 
-### Backend
+## Writing Workflow
 
-```bash
-cd api
-pnpm dev
-pnpm typecheck
-pnpm lint
-pnpm build
-pnpm start
-```
+- Add a new Markdown file to `src/content/posts/`
+- Fill in the frontmatter fields: `title`, `summary`, `category`, `tags`, `coverImage`, `publishedAt`
+- Write the article body in Markdown below the frontmatter
+- Push to `main`, and the static host can auto-deploy the new article
 
 ## Notes
 
-- Article content is sanitized before storage and again before rendering.
-- Comment creation is public, while comment deletion requires authentication.
-- `DEPLOYMENT.md` contains a production-oriented deployment walkthrough.
+- Article content is rendered from repository Markdown files and sanitized before display.
+- The legacy `api/` service remains in the repository for now, but the production blog no longer depends on it.
+- `DEPLOYMENT.md` documents the static deployment workflow.

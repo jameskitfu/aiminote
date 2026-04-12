@@ -44,14 +44,7 @@ const Home: React.FC = () => {
         setCategories(data);
       } catch (err) {
         console.error('Error fetching categories:', err);
-        // Fallback to mock categories if API fails
-        setCategories([
-          { id: '1', name: 'React', slug: 'react', count: 0 },
-          { id: '2', name: 'TypeScript', slug: 'typescript', count: 0 },
-          { id: '3', name: 'CSS', slug: 'css', count: 0 },
-          { id: '4', name: 'JavaScript', slug: 'javascript', count: 0 },
-          { id: '5', name: 'Vue', slug: 'vue', count: 0 },
-        ]);
+        setCategories([]);
       }
     };
 

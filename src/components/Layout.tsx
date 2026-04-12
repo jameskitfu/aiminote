@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, User, Home, FileText, LogIn, LogOut, X, Menu, Plus } from 'lucide-react';
-import { useAuth } from '@/contexts/useAuth';
+import { BookOpen, User, Home, FileText, X, Menu } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import { useI18n } from '@/contexts/useI18n';
@@ -13,17 +12,12 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { t } = useI18n();
-  const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigation = [
     { name: t('nav_home'), href: '/', icon: Home },
     { name: t('nav_articles'), href: '/articles', icon: FileText },
     { name: t('nav_about'), href: '/about', icon: User },
-  ];
-
-  const adminNavigation = [
-    { name: t('nav_create'), href: '/create-article', icon: Plus },
   ];
 
   const isActive = (path: string) => {
@@ -61,51 +55,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Link>
                 );
               })}
-              {/* Admin navigation */}
-              {isAuthenticated && adminNavigation.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
-                      isActive(item.href)
-                        ? 'text-brand bg-brand/15'
-                        : 'text-slate-700 dark:text-slate-300 hover:text-brand hover:bg-brand/15'
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
             </nav>
 
-            {/* Login button */}
             <div className="flex items-center space-x-4">
               <ThemeToggle />
               <LanguageSwitch />
-              {isAuthenticated ? (
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm text-slate-600 dark:text-slate-300">欢迎, {user?.username}</span>
-                  <button
-                    onClick={logout}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>退出</span>
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  to="/login"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700"
-                >
-                  <LogIn className="h-4 w-4" />
-                  <span>登录</span>
-                </Link>
-              )}
-              
               {/* Mobile menu button */}
               <div className="md:hidden">
                 <button 
@@ -146,46 +100,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Link>
               );
             })}
-            {/* Admin navigation for mobile */}
-            {isAuthenticated && adminNavigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive(item.href)
-                      ? 'text-green-900 bg-green-50 dark:text-green-100 dark:bg-green-900/30'
-                      : 'text-green-600 hover:text-green-900 hover:bg-green-100 dark:text-green-300 dark:hover:text-green-100 dark:hover:bg-green-900/30'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-            {isAuthenticated ? (
-              <button
-                onClick={() => {
-                  logout();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center space-x-2 w-full px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>退出</span>
-              </button>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700"
-              >
-                <LogIn className="h-4 w-4" />
-                <span>登录</span>
-              </Link>
-            )}
           </div>
         </div>
       )}

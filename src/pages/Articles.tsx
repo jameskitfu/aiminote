@@ -23,14 +23,7 @@ const Articles: React.FC = () => {
         setCategories(data);
       } catch (err) {
         console.error('Error fetching categories:', err);
-        // Fallback (与 Home 保持一致)
-        setCategories([
-          { id: 'react', name: 'React', slug: 'react', count: 0 },
-          { id: 'typescript', name: 'TypeScript', slug: 'typescript', count: 0 },
-          { id: 'css', name: 'CSS', slug: 'css', count: 0 },
-          { id: 'javascript', name: 'JavaScript', slug: 'javascript', count: 0 },
-          { id: 'vue', name: 'Vue', slug: 'vue', count: 0 },
-        ]);
+        setCategories([]);
       }
     };
     fetchCategories();
