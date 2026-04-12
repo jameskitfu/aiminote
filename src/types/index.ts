@@ -20,38 +20,10 @@ export interface Article {
   updatedAt: string;
 }
 
-export interface Comment {
-  id: string;
-  content: string;
-  authorName: string;
-  authorEmail?: string;
-  articleId: string;
-  status: string;
-  createdAt: string;
-}
-
 export interface Category {
   id: string;
   name: string;
   slug: string;
   color?: string;
   count?: number;
-}
-
-export interface AuthResponse {
-  success: boolean;
-  message: string;
-  token?: string;
-  user?: User;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
 }

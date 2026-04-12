@@ -87,5 +87,5 @@ pnpm preview
 ## Notes
 
 - Article content is rendered from repository Markdown files and sanitized before display.
-- The legacy `api/` service remains in the repository for now, but the production blog no longer depends on it.
+- The repository has been trimmed to the static blog workflow only; the old backend and login flow have been removed.
 - `DEPLOYMENT.md` documents the static deployment workflow.
