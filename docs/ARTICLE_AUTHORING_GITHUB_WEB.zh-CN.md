@@ -242,7 +242,7 @@ frontmatter 下面就是正常 Markdown 正文。
 
 检查是不是写成了 `publishedAt`，不要写成 `date`。
 
-## 给你妹妹的最短操作版本
+## 最短操作版本
 
 1. 打开仓库
 2. 进入 `docs/post-template.md`
