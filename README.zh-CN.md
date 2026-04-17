@@ -87,6 +87,7 @@ pnpm preview
 详细教程和模板见：
 
 - [docs/ARTICLE_AUTHORING.zh-CN.md](./docs/ARTICLE_AUTHORING.zh-CN.md)
+- [docs/ARTICLE_AUTHORING_GITHUB_WEB.zh-CN.md](./docs/ARTICLE_AUTHORING_GITHUB_WEB.zh-CN.md)
 - [docs/post-template.md](./docs/post-template.md)
 
 ## 说明

@@ -167,6 +167,10 @@ git push origin main
 
 提交后网站也会自动更新。
 
+如果需要更细的网页端教程，可直接看：
+
+- [ARTICLE_AUTHORING_GITHUB_WEB.zh-CN.md](./ARTICLE_AUTHORING_GITHUB_WEB.zh-CN.md)
+
 ## 发布后检查
 
 发文后建议检查：
