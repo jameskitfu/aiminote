@@ -84,6 +84,11 @@ pnpm preview
 - 在 frontmatter 下方继续写正文 Markdown
 - 直接 push 到 `main`，静态部署平台即可自动发布
 
+详细教程和模板见：
+
+- [docs/ARTICLE_AUTHORING.zh-CN.md](./docs/ARTICLE_AUTHORING.zh-CN.md)
+- [docs/post-template.md](./docs/post-template.md)
+
 ## 说明
 
 - 文章内容来自仓库内 Markdown，并在渲染前做安全清洗。

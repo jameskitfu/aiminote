@@ -84,6 +84,11 @@ pnpm preview
 - Write the article body in Markdown below the frontmatter
 - Push to `main`, and the static host can auto-deploy the new article
 
+Detailed authoring docs and a reusable template:
+
+- [docs/ARTICLE_AUTHORING.zh-CN.md](./docs/ARTICLE_AUTHORING.zh-CN.md)
+- [docs/post-template.md](./docs/post-template.md)
+
 ## Notes
 
 - Article content is rendered from repository Markdown files and sanitized before display.
