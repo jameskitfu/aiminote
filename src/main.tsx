@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import './index.css'
 
+const savedTheme = localStorage.getItem('theme');
+document.documentElement.classList.add(savedTheme === 'light' ? 'light' : 'dark');
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

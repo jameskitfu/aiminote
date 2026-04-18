@@ -9,7 +9,7 @@ const ThemeToggle: React.FC = () => {
     <button
       onClick={toggleTheme}
       aria-label={isDark ? '切换到日间模式' : '切换到夜间模式'}
-      className="p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700"
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300/60 bg-white/20 text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:text-slate-950 dark:border-white/10 dark:bg-slate-950/55 dark:text-slate-200 dark:hover:border-brand/40 dark:hover:text-white"
     >
       {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
     </button>
